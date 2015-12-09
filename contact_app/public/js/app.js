@@ -1,28 +1,59 @@
 var myApp = angular.module('myApp', []);
 myApp.controller('AppCtrl', ['$scope', '$http', function($scope, $http) {
-    console.log("Hello World from controller");
+    console.log("Hello World");
 
-$http.get('/contactlist')
 
-    person1 = {
-    	name: "Katie",
-    	email: "katie@katie.com",
-    	number: "716-880-5867"
-    };
+// refresh so that new data renders immediately after adding getting all contacts
+var refresh = function() {
+  $http.get('/contactlist').success(function(response) {
+    console.log("I got the data I requested");
+    $scope.contactlist = response;
+    $scope.contact = "";
+  });
+};
 
-    person2 = {
-    	name: "Katie2",
-    	email: "k@katie.com",
-    	number: "716-880-5867"
-    };
+refresh();
 
-    person3 = {
-    	name: "Katie3",
-    	email: "katie@k.com",
-    	number: "716-880-5867"
-    };
+$scope.addContact = function() {
+  console.log($scope.contact);
+  $http.post('/contactlist', $scope.contact).success(function(response) {
+    refresh();
+  });
+};
 
-    var contactlist = [person1, person2, person3];
-    $scope.contactlist = contactlist;
+$scope.remove = function(id) {
+  console.log(id);
+  $http.delete('/contactlist/' + id).success(function(response) {
+    refresh();
+  });
+};
+
+// moves selected contact into open field to allow for updating
+$scope.edit = function(id) {
+	$http.get('/contactlist/' +id).success(function(response) {
+		$scope.contact = response;
+	});
+};
+
+$scope.update = function() {
+  $http.put('/contactlist/' + $scope.contact._id, $scope.contact).success(function(response) {
+    refresh();
+  })
+};
+
+$scope.deselect = function() {
+  $scope.contact = "";
+}
 
 }]);
+
+
+
+
+
+
+
+
+
+
+
